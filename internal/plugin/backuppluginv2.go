@@ -17,6 +17,8 @@ limitations under the License.
 package plugin
 
 import (
+	"github.com/debdutdeb/velero-plugin-exclude-with-ownerref/internal/config"
+	"github.com/debdutdeb/velero-plugin-exclude-with-ownerref/internal/kubernetes"
 	"github.com/sirupsen/logrus"
 
 	"k8s.io/apimachinery/pkg/api/meta"
@@ -25,6 +27,16 @@ import (
 	v1 "github.com/vmware-tanzu/velero/pkg/apis/velero/v1"
 	"github.com/vmware-tanzu/velero/pkg/plugin/velero"
 )
+
+var cfg *config.Config
+
+func init() {
+	var err error
+	cfg, err = kubernetes.GetOurConfig()
+	if err != nil {
+		logrus.WithError(err).Fatal("Error getting our config")
+	}
+}
 
 // BackupPluginV2 is a v2 backup item action plugin for Velero.
 type BackupPluginV2 struct {
@@ -70,13 +82,30 @@ func (p *BackupPluginV2) Execute(item runtime.Unstructured, backup *v1.Backup) (
 	ownerReferences := metadata.GetOwnerReferences()
 	p.log.Infof("Resource name: %v, namespace: %v, kind: %v, ownerReferences: %v", metadata.GetName(), metadata.GetNamespace(), gvk.GetKind(), ownerReferences)
 
-	if len(ownerReferences) == 0 {
-		return item, nil, "", nil, nil
+	if cfg.ExcludeResourcesWithOwnerReferences && len(ownerReferences) > 0 {
+		p.log.Infof("Skipping resource: %v, namespace: %v, kind: %v", metadata.GetName(), metadata.GetNamespace(), gvk.GetKind())
+		return nil, nil, "", nil, nil
 	}
 
-	p.log.Infof("Skipping resource: %v, namespace: %v, kind: %v", metadata.GetName(), metadata.GetNamespace(), gvk.GetKind())
+	for _, regex := range cfg.ExcludeNamesRegexes {
+		if regex.MatchString(metadata.GetName()) {
+			p.log.Infof("Skipping resource: %v, namespace: %v, kind: %v", metadata.GetName(), metadata.GetNamespace(), gvk.GetKind())
+			return nil, nil, "", nil, nil
+		}
+	}
 
-	return nil, nil, "", nil, nil
+	for _, regex := range cfg.ExcludeRegexesForKinds {
+		if regex.Kind == gvk.GetKind() {
+			for _, regex := range regex.Regexes {
+				if regex.MatchString(metadata.GetName()) {
+					p.log.Infof("Skipping resource: %v, namespace: %v, kind: %v", metadata.GetName(), metadata.GetNamespace(), gvk.GetKind())
+					return nil, nil, "", nil, nil
+				}
+			}
+		}
+	}
+
+	return item, nil, "", nil, nil
 }
 
 func (p *BackupPluginV2) Progress(operationID string, backup *v1.Backup) (velero.OperationProgress, error) {
