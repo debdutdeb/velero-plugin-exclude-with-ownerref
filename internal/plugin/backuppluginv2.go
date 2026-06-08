@@ -31,11 +31,11 @@ import (
 var cfg *config.Config
 
 func init() {
-	var err error
-	cfg, err = kubernetes.GetOurConfig()
-	if err != nil {
-		logrus.WithError(err).Fatal("Error getting our config")
-	}
+	// var err error
+	// cfg, err = kubernetes.GetOurConfig()
+	// if err != nil {
+	// 	logrus.WithError(err).Fatal("Error getting our config")
+	// }
 }
 
 // BackupPluginV2 is a v2 backup item action plugin for Velero.
@@ -68,6 +68,14 @@ func (p *BackupPluginV2) AppliesTo() (velero.ResourceSelector, error) {
 // in this case, setting a custom annotation on the item being backed up.
 func (p *BackupPluginV2) Execute(item runtime.Unstructured, backup *v1.Backup) (runtime.Unstructured, []velero.ResourceIdentifier, string, []velero.ResourceIdentifier, error) {
 	p.log.Info("Exclude with OwnerRef backup plugin")
+
+	var err error
+	if cfg == nil {
+		cfg, err = kubernetes.GetOurConfig()
+		if err != nil {
+			return nil, nil, "", nil, err
+		}
+	}
 
 	metadata, err := meta.Accessor(item)
 	if err != nil {
