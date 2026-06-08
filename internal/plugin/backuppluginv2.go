@@ -69,6 +69,8 @@ func (p *BackupPluginV2) Execute(item runtime.Unstructured, backup *v1.Backup) (
 		return item, nil, "", nil, nil
 	}
 
+	p.log.Infof("Skipping resource: %v, namespace: %v", metadata.GetName(), metadata.GetNamespace())
+
 	return nil, nil, "", nil, nil
 }
 
