@@ -62,14 +62,19 @@ func (p *BackupPluginV2) Execute(item runtime.Unstructured, backup *v1.Backup) (
 		return nil, nil, "", nil, err
 	}
 
+	gvk, err := meta.TypeAccessor(item)
+	if err != nil {
+		return nil, nil, "", nil, err
+	}
+
 	ownerReferences := metadata.GetOwnerReferences()
-	p.log.Infof("Resource name: %v, namespace: %v, ownerReferences: %v", metadata.GetName(), metadata.GetNamespace(), ownerReferences)
+	p.log.Infof("Resource name: %v, namespace: %v, kind: %v, ownerReferences: %v", metadata.GetName(), metadata.GetNamespace(), gvk.GetKind(), ownerReferences)
 
 	if len(ownerReferences) == 0 {
 		return item, nil, "", nil, nil
 	}
 
-	p.log.Infof("Skipping resource: %v, namespace: %v", metadata.GetName(), metadata.GetNamespace())
+	p.log.Infof("Skipping resource: %v, namespace: %v, kind: %v", metadata.GetName(), metadata.GetNamespace(), gvk.GetKind())
 
 	return nil, nil, "", nil, nil
 }
