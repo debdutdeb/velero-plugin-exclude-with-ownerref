@@ -14,16 +14,16 @@
 
 FROM golang:1.26-trixie AS build
 ENV GOPROXY=https://proxy.golang.org
-WORKDIR /go/src/github.com/vmware-tanzu/velero-plugin-example
+WORKDIR /go/src/github.com/debdutdeb/velero-plugin-exclude-with-ownerref
 COPY go.mod go.sum ./
 RUN go mod download
 COPY . .
-RUN CGO_ENABLED=0 go build -o /go/bin/velero-plugin-example .
+RUN CGO_ENABLED=0 go build -o /go/bin/velero-plugin-exclude-with-ownerref .
 
 FROM busybox:1.37.0-musl AS busybox
 
 FROM scratch
-COPY --from=build /go/bin/velero-plugin-example /plugins/
+COPY --from=build /go/bin/velero-plugin-exclude-with-ownerref /plugins/
 COPY --from=busybox /bin/cp /bin/cp
 USER 65532:65532
-ENTRYPOINT ["cp", "/plugins/velero-plugin-example", "/target/."]
+ENTRYPOINT ["cp", "/plugins/velero-plugin-exclude-with-ownerref", "/target/."]

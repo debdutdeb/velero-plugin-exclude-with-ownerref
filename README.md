@@ -1,6 +1,6 @@
 # Velero Example Plugins
 
-![Continuous Integration](https://github.com/vmware-tanzu/velero-plugin-example/actions/workflows/continuous-integration.yml/badge.svg)
+![Continuous Integration](https://github.com/debdutdeb/velero-plugin-exclude-with-ownerref/actions/workflows/continuous-integration.yml/badge.svg)
 
 This repository contains example plugins for Velero.
 
@@ -32,7 +32,7 @@ To build the image, run
 $ make container
 ```
 
-This builds an image tagged as `velero/velero-plugin-example:main`. If you want to specify a different name or version/tag, run:
+This builds an image tagged as `velero/velero-plugin-exclude-with-ownerref:main`. If you want to specify a different name or version/tag, run:
 
 ```bash
 $ IMAGE=your-repo/your-name VERSION=your-version-tag make container 
@@ -43,7 +43,7 @@ $ IMAGE=your-repo/your-name VERSION=your-version-tag make container
 To deploy your plugin image to an Velero server:
 
 1. Make sure your image is pushed to a registry that is accessible to your cluster's nodes.
-2. Run `velero plugin add <registry/image:version>`. Example with a dockerhub image: `velero plugin add velero/velero-plugin-example`.
+2. Run `velero plugin add <registry/image:version>`. Example with a dockerhub image: `velero plugin add velero/velero-plugin-exclude-with-ownerref`.
 
 ## Using the plugins
 
@@ -91,7 +91,7 @@ To run with the example plugins, do the following:
 2. Copy everything from this project into your new project
 
 ```bash
-$ cp -a $GOPATH/src/github.com/vmware-tanzu/velero-plugin-example/* $GOPATH/src/github.com/someuser/velero-plugins/.
+$ cp -a $GOPATH/src/github.com/debdutdeb/velero-plugin-exclude-with-ownerref/* $GOPATH/src/github.com/someuser/velero-plugins/.
 ```
 
 3. Remove the git history
@@ -112,5 +112,5 @@ If you need to pull in additional dependencies to your vendor directory, just ru
 $ make modules
 ```
 
-[1]: https://github.com/vmware-tanzu/velero-plugin-example/workflows/Continuous%20Integration/badge.svg
+[1]: https://github.com/debdutdeb/velero-plugin-exclude-with-ownerref/workflows/Continuous%20Integration/badge.svg
 

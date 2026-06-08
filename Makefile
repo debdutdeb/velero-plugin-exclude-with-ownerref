@@ -12,11 +12,11 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-PKG := github.com/vmware-tanzu/velero-plugin-example
-BIN := velero-plugin-example
+PKG := github.com/debdutdeb/velero-plugin-exclude-with-ownerref
+BIN := velero-plugin-exclude-with-ownerref
 
 REGISTRY ?= velero
-IMAGE    ?= $(REGISTRY)/velero-plugin-example
+IMAGE    ?= $(REGISTRY)/velero-plugin-exclude-with-ownerref
 VERSION  ?= main 
 
 GOOS   ?= $(shell go env GOOS)

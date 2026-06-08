@@ -1,4 +1,4 @@
-module github.com/vmware-tanzu/velero-plugin-example
+module github.com/debdutdeb/velero-plugin-exclude-with-ownerref
 
 go 1.26.0
 
