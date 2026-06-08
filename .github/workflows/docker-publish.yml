@@ -4,6 +4,8 @@ on:
   push:
     branches:
       - main
+    tags:
+      - '*'
 
 jobs:
   docker:
@@ -19,8 +21,16 @@ jobs:
           username: ${{ secrets.DOCKERIO_USERNAME }}
           password: ${{ secrets.DOCKERIO_KEY }}
 
+      - name: Set image version
+        run: |
+          if [ "${{ github.ref_type }}" = "tag" ]; then
+            echo "VERSION=${{ github.ref_name }}" >> "$GITHUB_ENV"
+          else
+            echo "VERSION=main" >> "$GITHUB_ENV"
+          fi
+
       - name: Build image
-        run: IMAGE=debdutdeb/velero-plugin-exclude-with-ownerref VERSION=main make container
+        run: IMAGE=debdutdeb/velero-plugin-exclude-with-ownerref VERSION=$VERSION make container
 
       - name: Push image
-        run: IMAGE=debdutdeb/velero-plugin-exclude-with-ownerref VERSION=main TAG_LATEST=true make push
+        run: IMAGE=debdutdeb/velero-plugin-exclude-with-ownerref VERSION=$VERSION TAG_LATEST=true make push
