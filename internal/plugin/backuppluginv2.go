@@ -52,23 +52,6 @@ func (p *BackupPluginV2) AppliesTo() (velero.ResourceSelector, error) {
 	return velero.ResourceSelector{}, nil // for all
 }
 
-// func GetClient() (*kubernetes.Clientset, error) {
-// 	loadingRules := clientcmd.NewDefaultClientConfigLoadingRules()
-// 	configOverrides := &clientcmd.ConfigOverrides{}
-// 	kubeConfig := clientcmd.NewNonInteractiveDeferredLoadingClientConfig(loadingRules, configOverrides)
-// 	clientConfig, err := kubeConfig.ClientConfig()
-// 	if err != nil {
-// 		return nil, fmt.Errorf("getting client config: %w", err)
-// 	}
-
-// 	client, err := kubernetes.NewForConfig(clientConfig)
-// 	if err != nil {
-// 		return nil, fmt.Errorf("creating kubernetes client: %w", err)
-// 	}
-
-// 	return client, nil
-// }
-
 // Execute allows the ItemAction to perform arbitrary logic with the item being backed up,
 // in this case, setting a custom annotation on the item being backed up.
 func (p *BackupPluginV2) Execute(item runtime.Unstructured, backup *v1.Backup) (runtime.Unstructured, []velero.ResourceIdentifier, string, []velero.ResourceIdentifier, error) {
@@ -79,13 +62,12 @@ func (p *BackupPluginV2) Execute(item runtime.Unstructured, backup *v1.Backup) (
 		return nil, nil, "", nil, err
 	}
 
-	// back up only if the item has no owner references
-	if len(metadata.GetOwnerReferences()) == 0 {
+	ownerReferences := metadata.GetOwnerReferences()
+	p.log.Infof("Resource name: %v, namespace: %v, ownerReferences: %v", metadata.GetName(), metadata.GetNamespace(), ownerReferences)
+
+	if len(ownerReferences) == 0 {
 		return item, nil, "", nil, nil
 	}
-
-	ownerReferences := metadata.GetOwnerReferences()
-	p.log.Infof("Skipping backing up item with owner references: %v", ownerReferences)
 
 	return nil, nil, "", nil, nil
 }
