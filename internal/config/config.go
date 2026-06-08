@@ -3,8 +3,6 @@ package config
 import (
 	"fmt"
 	"regexp"
-
-	"go.yaml.in/yaml/v2"
 )
 
 type RegexWrapper struct {
@@ -22,16 +20,16 @@ type Config struct {
 	ExcludeRegexesForKinds              []ExcludeRegexForKind `yaml:"excludeRegexesForKinds,omitempty"`
 }
 
-func (rw *RegexWrapper) UnmarshalJSON(b []byte) error {
+func (rw *RegexWrapper) UnmarshalYAML(unmarshal func(interface{}) error) error {
 	var regexStr string
 
-	if err := yaml.Unmarshal(b, &regexStr); err != nil {
+	if err := unmarshal(&regexStr); err != nil {
 		return err
 	}
 
 	compiled, err := regexp.Compile(regexStr)
 	if err != nil {
-		return fmt.Errorf("failed to compile regex: %w", err)
+		return fmt.Errorf("failed to compile regex %q: %w", regexStr, err)
 	}
 
 	rw.Regexp = compiled
